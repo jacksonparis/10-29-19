@@ -1,0 +1,44 @@
+---
+title: "10-29-19 pair"
+author: "Jackson Kehoe"
+date: "10/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(googlesheets4)
+library(moderndive)
+library(infer)
+```
+
+```{r}
+sheets_deauth() 
+x <- read_sheet("1cgP-e6THVfiW5TJ95QhX3jkNxKvc8Sicp9k_BkSRd2I") %>%
+  mutate(prop_red = red / (red + white)) %>%
+  drop_na() %>%
+  filter(! prop_red == .64)
+```
+
+```{r}
+ggplot(x, aes(x = prop_red)) + geom_histogram(binwidth = .1)
+```
+
+```{r}
+bootstrap <- x %>%
+  specify(response = prop_red) %>%
+  generate(reps = 10000) %>%
+  calculate(stat = "mean") %>%
+  summarize(mean = mean(stat))
+
+# ggplot(bootstrap, aes(x = prop_red)) + geom_histogram(binwidth = .05)
+```
+
+```{r}
+bucket <- tibble(bead = c(rep("Red", 2000), rep("White", 8000)))
+```
+
